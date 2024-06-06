@@ -24,26 +24,31 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get("/api/:input", (req,res)=>{
-  const input = req.params.input;
+app.get('/api/:date?', (req, res) => {
+    let input = req.params.date;
     let newdate;
 
-    // Determine if the input is a UNIX timestamp or a date string
-    if (!isNaN(input)) {
-        // Input is a UNIX timestamp
-        newdate = new Date(parseInt(input, 10));
+    // If no date is provided, use the current date
+    if (!input) {
+        newdate = new Date();
     } else {
-        // Input is a date string
-        newdate = new Date(input + "T00:00:00Z");
+        // Determine if the input is a UNIX timestamp or a date string
+        if (!isNaN(input)) {
+            // Input is a UNIX timestamp
+            newdate = new Date(parseInt(input, 10));
+        } else {
+            // Input is a date string
+            newdate = new Date(input);
+        }
     }
 
     // Check if the date is valid
     if (isNaN(newdate.getTime())) {
-        return res.status(400).json({ error: 'Invalid date input' });
+        return res.json({ error: 'Invalid Date' });
     }
 
     // Get the UNIX timestamp and UTC string
-    const unixTimestamp = newdate.getTime().toString();
+    const unixTimestamp = newdate.getTime();
     const utcString = newdate.toUTCString();
 
     // Create a response object
@@ -55,7 +60,6 @@ app.get("/api/:input", (req,res)=>{
     // Send the JSON response
     res.json(response);
 });
-
 
 
 // Listen on port set in environment variable or default to 3000
