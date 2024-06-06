@@ -24,43 +24,24 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get('/api/:date?', (req, res) => {
-    let input = req.params.date;
-    let newdate;
+app.get('/api/:timestamp',(req,res)=>{
+  const timestamp = req.params.timestamp;
 
-    // If no date is provided, use the current date
-    if (!input) {
-        newdate = new Date();
-    } else {
-        // Determine if the input is a UNIX timestamp or a date string
-        if (!isNaN(input)) {
-            // Input is a UNIX timestamp
-            newdate = new Date(parseInt(input, 10));
-        } else {
-            // Input is a date string
-            newdate = new Date(input);
-        }
-    }
+  if(!isNaN(Number(timestamp)) && timestamp.length === 13){
+    return res.json({
+      unix: timestamp,
+      utc: new Date(Number(timestamp)).toUTCString()
+    })
+  }
 
-    // Check if the date is valid
-    if (isNaN(newdate.getTime())) {
-        return res.json({ error: 'Invalid Date' });
-    }
-
-    // Get the UNIX timestamp and UTC string
-    const unixTimestamp = newdate.getTime();
-    const utcString = newdate.toUTCString();
-
-    // Create a response object
-    const response = {
-        unix: unixTimestamp,
-        utc: utcString
-    };
-
-    // Send the JSON response
-    res.json(response);
-});
-
+  if(new Date(timestamp).toUTCString() != 'Invalid Date'){
+    return res.json({
+      unix: new Date(timestamp).getTime(),
+      utc: new Date(timestamp).toUTCString(),
+    })
+  }
+  res.json({ error : "Invalid Date" });
+})
 
 // Listen on port set in environment variable or default to 3000
 var listener = app.listen(process.env.PORT || 3000, function () {
